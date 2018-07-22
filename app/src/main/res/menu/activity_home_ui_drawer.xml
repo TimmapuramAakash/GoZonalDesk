@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/home"
+            android:icon="@drawable/home_icon"
+            android:title="Home" />
+        <item
+            android:id="@+id/service_request"
+            android:icon="@drawable/ic_action_request"
+            android:title="Service Request" />
+        <item
+            android:id="@+id/service_status"
+            android:icon="@drawable/ic_action_serv_updates"
+            android:title="Service Status" />
+        <item
+            android:id="@+id/chat_zonaldesk"
+            android:icon="@drawable/chat_icon"
+            android:title="Chat With ZonalDesk" />
+        <item
+            android:id="@+id/service_estimate"
+            android:icon="@drawable/home_icon"
+            android:title="Estimate Service" />
+        <item
+            android:id="@+id/call_history"
+            android:icon="@drawable/call_history"
+            android:title="Call History" />
+    </group>
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/share_icon"
+                android:title="Share"
+                />
+            <item
+                android:id="@+id/feedback"
+                android:icon="@drawable/ic_action_feedback"
+                android:title="Feedback" />
+        </menu>
+    </item>
+
+
+</menu>
