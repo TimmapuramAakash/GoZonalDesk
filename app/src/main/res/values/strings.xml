@@ -82,7 +82,7 @@
     <string name="title_activity_home">Home</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_title">ZonalDesk</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Signout</string>
@@ -105,5 +105,17 @@
     <string name="title_activity_track_map">Map</string>
     <string name="will_be_updated_soon">Will Be Updated Soon</string>
     <string name="call">Call</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="call_history">Call History Here</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="home">Home its Home</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="service_status">Service Status Here</string>
+    <string name="estimate_service">Service Estimation Here</string>
+    <string name="chat_with_zonaldesk">Chat With Zonaldesk Here</string>
+    <string name="service_request">Service Request Here</string>
 
 </resources>

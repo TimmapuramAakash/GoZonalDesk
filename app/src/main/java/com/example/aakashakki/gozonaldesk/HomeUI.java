@@ -1,5 +1,6 @@
 package com.example.aakashakki.gozonaldesk;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,13 +9,18 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,6 +31,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,6 +42,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.webianks.easy_feedback.EasyFeedback;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,14 +51,19 @@ public class HomeUI extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private FirebaseAuth mAuth;
     private long exitTime = 0;
-
+    ImageView profilepicture ;
+    TextView displayname;
+    TextView mail;
     private DatabaseReference mDatabase;
     LocationManager locationManager;
+    public  static  final  int REQUEST_CALL=1;
     private FirebaseAuth.AuthStateListener mAuthListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Home");
         setContentView(R.layout.activity_home_ui);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,19 +72,19 @@ public class HomeUI extends AppCompatActivity
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(HomeUI.this, PhoneAuth.class));
+                    startActivity(new Intent(HomeUI.this, PhoneUI.class));
                     finish();
                 }
             }
         };
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -80,6 +94,17 @@ public class HomeUI extends AppCompatActivity
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View header = navigationView.getHeaderView(0);
+        profilepicture = (ImageView) header.findViewById(R.id.profile);
+        displayname = (TextView) header.findViewById(R.id.nameUSER);
+        mail = (TextView)header.findViewById(R.id.PhoneorMail);
+
+        String mail_id = mAuth.getCurrentUser().getPhoneNumber();
+       // String user_id = mAuth.getCurrentUser().getDisplayName();
+
+        profilepicture.setImageResource(R.drawable.biztimelogo);
+        displayname.setText("ZonalDesk");
+        mail.setText("PhoneNo: "+mail_id);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -176,7 +201,19 @@ public class HomeUI extends AppCompatActivity
         }
 
 
+
+        Fragment fragment = null;
+
+
+        fragment = new Home();
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.title_text, fragment);
+            ft.commit();
+        }
+
     }
+
 
     @Override
     protected void onStart() {
@@ -211,8 +248,8 @@ public class HomeUI extends AppCompatActivity
         int id = item.getItemId();
 //noinspection SimplifiableIfStatement
         if (id == R.id.call_action) {
-            Toast.makeText(HomeUI.this,"Call will be connected",Toast.LENGTH_SHORT).show();
-
+          //  Toast.makeText(HomeUI.this,"Call will be connected",Toast.LENGTH_SHORT).show();
+            makePhoneCall();
         }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -224,28 +261,106 @@ public class HomeUI extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void makePhoneCall() {
+        String AdminNumber ="+918074878950";
+        if(ContextCompat.checkSelfPermission(HomeUI.this,android.Manifest.permission.CALL_PHONE)!=PackageManager.PERMISSION_GRANTED){
+    ActivityCompat.requestPermissions(HomeUI.this,new String[]{Manifest.permission.CALL_PHONE},REQUEST_CALL);
+        }
+        else{
+            String dial ="tel:"+AdminNumber;
+            startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode ==REQUEST_CALL){
+            if(grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                makePhoneCall();
+
+            }
+            else{
+                Toast.makeText(HomeUI.this,"Permission Denied",Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
+       int id = item.getItemId();
+       /* Intent intent = null;
+        switch (item.getItemId()) {
+            case R.id.service_estimate:
+          //      intent = new Intent(this, DefaultActivity.class);
+                break;
+            case R.id.service_request:
+           //     intent = new Intent(this, ColoredActivity.class);
+                break;
+            case R.id.call_history:
+            //    intent = new Intent(this, VoiceActivity.class);
+                break;
+            case R.id.service_status:
+            //    intent = new Intent(this, StickyActivity.class);
+                break;
+            case R.id.chat_zonaldesk:
+            //    intent = new Intent(this, TabActivity.class);
+                break;
+            case R.id.home:
+            //    intent = new Intent(this, InputTypeActivity.class);
+                break;
+            case R.id.nav_share:
+                try {
+                    ShareCompat.IntentBuilder.from(HomeUI.this)
+                            .setType("text/plain")
+                            .setChooserTitle("Chooser title")
+                            .setText("http://play.google.com/store/apps/details?id=" + getApplication().getPackageName())
+                            .startChooser();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.feedback:
+                intent = new Intent(this, Feedback.class);
+
+                break;
+        }
+        if (intent != null) {
+            startActivity(intent);
+            finish();
+        }*/
+
+        Fragment fragment = null;
+
+        Bundle bundle = new Bundle();
         if (id == R.id.service_estimate) {
-            Toast.makeText(HomeUI.this,"Service Estimate",Toast.LENGTH_SHORT).show();
-            // Handle the camera action
+//            Toast.makeText(HomeUI.this,"Service Estimate",Toast.LENGTH_SHORT).show();
+
+            fragment = new EstimateService();
         } else if (id == R.id.service_request) {
-            Toast.makeText(HomeUI.this,"Service request",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HomeUI.this,"Service request",Toast.LENGTH_SHORT).show();
+            fragment = new RequestService();
 
         }  else if (id == R.id.call_history) {
-            Toast.makeText(HomeUI.this,"Call History",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HomeUI.this,"Call History",Toast.LENGTH_SHORT).show();
+            fragment = new CallHistory();
+
 
         } else if (id == R.id.service_status) {
-            Toast.makeText(HomeUI.this,"Service Status",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HomeUI.this,"Service Status",Toast.LENGTH_SHORT).show();
+            fragment = new ServiceStatus();
+
 
         } else if (id == R.id.chat_zonaldesk) {
-            Toast.makeText(HomeUI.this,"chat with admin",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HomeUI.this,"chat with admin",Toast.LENGTH_SHORT).show();
+            fragment = new ChatZonaldesk();
+
         }
         else if (id == R.id.home) {
-            Toast.makeText(HomeUI.this,"Home",Toast.LENGTH_SHORT).show();
+            fragment = new Home();
 
         }
         else if (id == R.id.nav_share) {
@@ -262,9 +377,81 @@ public class HomeUI extends AppCompatActivity
 
         }
         else if (id == R.id.feedback) {
-            Toast.makeText(HomeUI.this,"Send",Toast.LENGTH_SHORT).show();
+            new EasyFeedback.Builder(this)
+                    .withEmail("aakashakki47@gmail.com")
+                    .withSystemInfo()
+                    .build()
+                    .start();
 
         }
+
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.title_text, fragment);
+            ft.commit();
+        }
+/*        Fragment fragment = null;
+        Class fragmentClass = null;
+        switch(item.getItemId()) {
+            case R.id.call_history:
+                fragmentClass = CallHistory.class;
+                break;
+            case R.id.service_request:
+               // fragmentClass = SecondFragment.class;
+                break;
+            case R.id.service_estimate:
+               // fragmentClass = ThirdFragment.class;
+                break;
+            case R.id.home:
+                // fragmentClass = ThirdFragment.class;
+                break;
+            case R.id.chat_zonaldesk:
+                // fragmentClass = ThirdFragment.class;
+                break;
+            case R.id.service_status:
+                // fragmentClass = ThirdFragment.class;
+                break;
+
+            case R.id.feedback:
+                new EasyFeedback.Builder(this)
+                        .withEmail("aakashakki47@gmail.com")
+                        .withSystemInfo()
+                        .build()
+                        .start();                break;
+            case R.id.nav_share:
+                try {
+                    ShareCompat.IntentBuilder.from(HomeUI.this)
+                            .setType("text/plain")
+                            .setChooserTitle("Chooser title")
+                            .setText("http://play.google.com/store/apps/details?id=" + getApplication().getPackageName())
+                            .startChooser();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
+                fragmentClass = CallHistory.class;
+        }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.title_text, fragment).commit();
+*/
+        // Highlight the selected item has been done by NavigationView
+        item.setChecked(true);
+
+        // Set action bar title
+       // if(item.getItemId()!=R.id.feedback&&item.getItemId()!=R.id.nav_share){        setTitle(item.getTitle());
+      //  }
+        // Close the navigation drawer
+
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
