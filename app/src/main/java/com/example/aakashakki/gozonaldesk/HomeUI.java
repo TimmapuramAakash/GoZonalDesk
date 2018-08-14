@@ -507,3 +507,4 @@ public class HomeUI extends AppCompatActivity
 
 }
 
+//app exited
